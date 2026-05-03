@@ -40,6 +40,86 @@
       </style>
     </noscript>
   </head>
+  <!-- Custom Lightbox CSS for Zoom & Pan Features -->
+    <style>
+      /* Force disable the old image viewer overlay */
+      .dark-overlay {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+
+      /* New Custom Lightbox */
+      #custom-lightbox {
+        display: none;
+        position: fixed;
+        top: 0; 
+        left: 0; 
+        width: 100vw; 
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 99999;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        touch-action: none;
+      }
+
+      #custom-lightbox.active { 
+        display: flex; 
+        animation: fadeIn 0.3s ease;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      #lightbox-img {
+        max-width: 90%; 
+        max-height: 85%;
+        cursor: zoom-in; /* Shows the zoom icon when hovering */
+        user-select: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      }
+
+      #lightbox-img:active { 
+        cursor: zoom-out; 
+      }
+
+      .lightbox-close {
+        position: absolute;
+        top: 30px; 
+        right: 30px;
+        background: rgba(255, 0, 0, 0.6);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        width: 45px; 
+        height: 45px; 
+        border-radius: 50%;
+        font-size: 18px; 
+        cursor: pointer;
+        display: flex; 
+        justify-content: center; 
+        align-items: center;
+        z-index: 100000;
+        transition: all 0.3s;
+      }
+      
+      .lightbox-close:hover {
+        background: rgba(255, 0, 0, 0.9);
+        transform: scale(1.1);
+      }
+
+      .expandable-image {
+        cursor: pointer;
+        transition: transform 0.3s;
+      }
+      .expandable-image:hover {
+        transform: scale(1.03);
+      }
+    </style>
   <body class="bg-light" id="top">
     <header class="d-print-none">
       <div class="container text-center text-lg-left">
@@ -1323,9 +1403,105 @@
         </span>
       </div>
     </footer>
+     <!-- Custom Lightbox Element -->
+    <div id="custom-lightbox">
+      <button class="lightbox-close" id="lb-close" title="Close"><i class="fas fa-times"></i></button>
+      <img id="lightbox-img" src="" alt="Fullscreen Certificate">
+    </div>
+
     <script src="scripts/mdb.min.js?ver=1.2.1"></script>
     <script src="scripts/aos.js?ver=1.2.1"></script>
     <script src="scripts/main.js?ver=1.2.1"></script>
     <script src="scripts/ux.js"></script>
+
+    <!-- Custom Lightbox "Hold to Zoom" Script -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const lightbox = document.getElementById('custom-lightbox');
+        const lbImg = document.getElementById('lightbox-img');
+        
+        const ZOOM_SCALE = 2.5; // Change this number to make it zoom more or less
+        let isHolding = false;
+
+        // 1. Intercept clicks on certificates (Before your old ux.js)
+        document.addEventListener('click', (e) => {
+          if (e.target && e.target.classList.contains('expandable-image')) {
+            e.preventDefault();
+            e.stopPropagation();           
+            e.stopImmediatePropagation(); 
+
+            lbImg.src = e.target.src;
+            lbImg.style.transform = `translate(0px, 0px) scale(1)`; 
+            lightbox.classList.add('active');
+          }
+        }, true); 
+
+        // 2. Close functions
+        const closeLightbox = () => {
+          lightbox.classList.remove('active');
+          isHolding = false;
+          lbImg.style.transform = `translate(0px, 0px) scale(1)`; 
+        };
+        
+        document.getElementById('lb-close').addEventListener('click', closeLightbox);
+        
+        lightbox.addEventListener('mousedown', (e) => {
+          if(e.target === lightbox) closeLightbox();
+        });
+
+        // 3. Hold-to-Zoom & Pan Logic
+        function getPointerCoords(e) {
+          if (e.touches && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+          return { x: e.clientX, y: e.clientY };
+        }
+
+        function applyZoom(e) {
+          const coords = getPointerCoords(e);
+          const cx = window.innerWidth / 2;
+          const cy = window.innerHeight / 2;
+
+          const tx = (coords.x - cx) * (1 - ZOOM_SCALE);
+          const ty = (coords.y - cy) * (1 - ZOOM_SCALE);
+
+          lbImg.style.transform = `translate(${tx}px, ${ty}px) scale(${ZOOM_SCALE})`;
+        }
+
+        function startZoom(e) {
+          if (e.type === 'mousedown' && e.button !== 0) return; 
+          if (e.target !== lbImg) return; 
+          
+          e.preventDefault(); 
+          isHolding = true;
+          lbImg.style.transition = 'transform 0.1s ease-out'; 
+          applyZoom(e);
+        }
+
+        function moveZoom(e) {
+          if (!isHolding) return;
+          e.preventDefault(); 
+          applyZoom(e);
+        }
+
+        function endZoom() {
+          if (isHolding) {
+            isHolding = false;
+            lbImg.style.transition = 'transform 0.3s ease'; 
+            lbImg.style.transform = `translate(0px, 0px) scale(1)`;
+          }
+        }
+
+        // Mouse Listeners
+        lbImg.addEventListener('mousedown', startZoom);
+        window.addEventListener('mousemove', moveZoom);
+        window.addEventListener('mouseup', endZoom);
+        window.addEventListener('mouseleave', endZoom); 
+
+        // Touch Listeners (Mobile support)
+        lbImg.addEventListener('touchstart', startZoom, { passive: false });
+        window.addEventListener('touchmove', moveZoom, { passive: false });
+        window.addEventListener('touchend', endZoom);
+      });
+    </script>
+
   </body>
 </html>
