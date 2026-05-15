@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project Details - Reza Mirbagheri</title>
+
+    <!-- Matching Fonts and CSS -->
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin="crossorigin"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&amp;family=Roboto:wght@300;400;500;700&amp;display=swap"
+    />
+    <link href="css/font-awesome/css/all.min.css?ver=1.2.1" rel="stylesheet" />
+    <link href="css/mdb.min.css?ver=1.2.1" rel="stylesheet" />
+    <link href="css/aos.css?ver=1.2.1" rel="stylesheet" />
+    <link href="css/main.css?ver=1.2.1" rel="stylesheet" />
+
+    <style>
+      .project-header {
+        background-color: #0d8abc;
+        color: white;
+        padding: 60px 0;
+        margin-bottom: 40px;
+        border-radius: 0 0 15px 15px;
+      }
+      .back-btn {
+        color: white;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        font-weight: 500;
+        transition: opacity 0.2s;
+      }
+      .back-btn:hover {
+        color: white;
+        opacity: 0.8;
+      }
+      .video-container {
+        position: relative;
+        padding-bottom: 56.25%;
+        height: 0;
+        overflow: hidden;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        display: none; /* Hidden by default if no video exists */
+      }
+      .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .project-image {
+        width: 100%;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none; /* Hidden by default if no image exists */
+      }
+      /* Loading state */
+      #error-message {
+        display: none;
+      }
+      #project-content {
+        display: none;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <header class="project-header shadow-sm">
+      <div class="container">
+        <a href="index.html" class="back-btn"
+          ><i class="fas fa-arrow-left"></i> Back to Portfolio</a
+        >
+        <h1 class="display-4 fw-bold" id="proj-title">Loading...</h1>
+        <p class="lead" id="proj-subtitle"></p>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="container">
+        <!-- Error Message (if URL is wrong) -->
+        <div id="error-message" class="alert alert-danger text-center my-5">
+          <h3>Project Not Found</h3>
+          <p>Sorry, the project you are looking for does not exist.</p>
+          <a href="index.html" class="btn btn-primary mt-3">Return Home</a>
+        </div>
+
+        <!-- Dynamic Content Area -->
+        <div class="row" id="project-content">
+          <div class="col-lg-7 mb-5">
+            <div class="bg-white p-5 shadow-1-strong rounded">
+              <h3 class="h3 mb-4 text-info">Project Overview</h3>
+
+              <div id="proj-description">
+                <!-- Javascript will inject description here -->
+              </div>
+
+              <h4 class="h5 mt-4 fw-bold">Technologies Used</h4>
+              <ul
+                class="list-unstyled d-flex flex-wrap gap-2 mt-2"
+                id="proj-tech"
+              >
+                <!-- Javascript will inject tech tags here -->
+              </ul>
+            </div>
+          </div>
+
+          <div class="col-lg-5 mb-5">
+            <!-- Media Area -->
+            <div class="video-container" id="proj-video-box">
+              <iframe
+                id="proj-video"
+                src=""
+                frameborder="0"
+                allowfullscreen
+              ></iframe>
+            </div>
+
+            <img
+              id="proj-image-1"
+              src=""
+              class="project-image shadow-1-strong"
+              alt="Project Image 1"
+            />
+            <img
+              id="proj-image-2"
+              src=""
+              class="project-image shadow-1-strong"
+              alt="Project Image 2"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- The Database & Dynamic Logic -->
+    <script>
+      // 1. This is your "Database". Add new projects here!
+      const projectDatabase = {
+        "rehab-robot": {
+          title: "Rehabilitation Instruments Prototype",
+          subtitle: "Design, Analyses, and Prototyping",
+          description: `
+            <p>The goal of this project was to help people with limited hand mobility perform daily tasks such as picking up cups, spoons, forks, cellphones, and a variety of other products.</p>
+            <h4 class="h6 fw-bold mt-3">The Process</h4>
+            <p>I utilized CATIA for the initial solid modeling, ensuring precise measurements. I then moved the models into MESHMIXER to optimize the meshes for additive manufacturing using a 3D printer.</p>
+          `,
+          tech: ["CATIA", "MESHMIXER", "3D Printing", "Rapid Prototyping"],
+          videoLink: "https://www.youtube.com/embed/YOUR_VIDEO_ID_HERE", // Leave empty string "" if no video
+          images: [
+            "images/project-cad-model.jpg", // Image 1
+            "images/project-3d-print.jpg", // Image 2
+          ],
+        },
+        "solar-farm": {
+          title: "Off-Grid & On-Grid Solar Farm",
+          subtitle: "Design and Simulation using PVsyst",
+          description: `
+            <p>Designed a comprehensive layout for both off-grid and on-grid solar farms to maximize renewable energy efficiency.</p>
+            <p>Simulated shading, weather conditions, and panel angles to calculate the optimal yearly yield.</p>
+          `,
+          tech: ["PVsyst", "Renewable Energy", "System Design"],
+          videoLink: "", // No video for this one
+          images: ["images/solar-farm-sim.jpg"],
+        },
+        // Add more projects here...
+      };
+
+      // 2. The Logic to Load the Project
+      document.addEventListener("DOMContentLoaded", () => {
+        // Read the URL parameter (e.g., project.html?id=solar-farm)
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get("id");
+
+        const project = projectDatabase[projectId];
+
+        if (project) {
+          // Project found! Inject the data into the HTML
+          document.getElementById("project-content").style.display = "flex";
+
+          document.getElementById("proj-title").innerText = project.title;
+          document.getElementById("proj-subtitle").innerText = project.subtitle;
+          document.getElementById("proj-description").innerHTML =
+            project.description;
+
+          // Inject tech tags
+          const techContainer = document.getElementById("proj-tech");
+          project.tech.forEach((techItem) => {
+            techContainer.innerHTML += `<li><span class="badge bg-secondary">${techItem}</span></li>`;
+          });
+
+          // Inject Video if it exists
+          if (project.videoLink) {
+            document.getElementById("proj-video-box").style.display = "block";
+            document.getElementById("proj-video").src = project.videoLink;
+          }
+
+          // Inject Images if they exist
+          if (project.images && project.images.length > 0) {
+            if (project.images[0]) {
+              document.getElementById("proj-image-1").src = project.images[0];
+              document.getElementById("proj-image-1").style.display = "block";
+            }
+            if (project.images[1]) {
+              document.getElementById("proj-image-2").src = project.images[1];
+              document.getElementById("proj-image-2").style.display = "block";
+            }
+          }
+        } else {
+          // Project not found, show error
+          document.getElementById("proj-title").innerText = "Not Found";
+          document.getElementById("error-message").style.display = "block";
+        }
+      });
+    </script>
+  </body>
+</html>
