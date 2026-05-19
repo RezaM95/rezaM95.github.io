@@ -97,7 +97,8 @@
 
         <!-- Dynamic Content Area -->
         <div class="row" id="project-content">
-          <div class="col-lg-7 mb-5">
+          <!-- Text Column (Given an ID so we can resize it via JS) -->
+          <div class="col-lg-7 mb-5" id="proj-text-col">
             <div class="bg-white p-5 shadow-1-strong rounded">
               <h3 class="h3 mb-4 text-info">Project Overview</h3>
 
@@ -115,7 +116,8 @@
             </div>
           </div>
 
-          <div class="col-lg-5 mb-5">
+          <!-- Media Column (Given an ID so we can hide it via JS) -->
+          <div class="col-lg-5 mb-5" id="proj-media-col">
             <!-- Media Area -->
             <div class="video-container" id="proj-video-box">
               <iframe
@@ -156,11 +158,8 @@
             <p>I utilized CATIA for the initial solid modeling, ensuring precise measurements. I then moved the models into MESHMIXER to optimize the meshes for additive manufacturing using a 3D printer.</p>
           `,
           tech: ["CATIA", "MESHMIXER", "3D Printing", "Rapid Prototyping"],
-          videoLink: "https://www.youtube.com/embed/YOUR_VIDEO_ID_HERE", // Leave empty string "" if no video
-          images: [
-            "images/project-cad-model.jpg", // Image 1
-            "images/project-3d-print.jpg", // Image 2
-          ],
+          videoLink: "", // Leave empty string "" if no video
+          images: [],
         },
         "solar-farm": {
           title: "Off-Grid & On-Grid Solar Farm",
@@ -173,7 +172,17 @@
           videoLink: "", // No video for this one
           images: ["images/solar-farm-sim.jpg"],
         },
-        // Add more projects here...
+        "theory-project": {
+          title: "Theoretical Mechatronics Research",
+          subtitle: "Purely descriptive project with no media",
+          description: `
+            <p>This is an example project that has a complete description, but absolutely no images and no videos attached to it.</p>
+            <p>Because there is no media, this text box will automatically expand to take up the full width of the screen, rather than leaving a massive blank space on the right side.</p>
+          `,
+          tech: ["Research", "Mathematics", "Control Systems"],
+          videoLink: "",
+          images: [], // Empty array = no images
+        },
       };
 
       // 2. The Logic to Load the Project
@@ -199,21 +208,39 @@
             techContainer.innerHTML += `<li><span class="badge bg-secondary">${techItem}</span></li>`;
           });
 
-          // Inject Video if it exists
-          if (project.videoLink) {
-            document.getElementById("proj-video-box").style.display = "block";
-            document.getElementById("proj-video").src = project.videoLink;
-          }
+          // Check what media exists
+          const hasVideo = project.videoLink && project.videoLink.trim() !== "";
+          const hasImages = project.images && project.images.length > 0;
+          const hasMedia = hasVideo || hasImages;
 
-          // Inject Images if they exist
-          if (project.images && project.images.length > 0) {
-            if (project.images[0]) {
-              document.getElementById("proj-image-1").src = project.images[0];
-              document.getElementById("proj-image-1").style.display = "block";
+          const textCol = document.getElementById("proj-text-col");
+          const mediaCol = document.getElementById("proj-media-col");
+
+          if (!hasMedia) {
+            // IF NO MEDIA: Expand text to full width and hide media column completely
+            mediaCol.style.display = "none";
+            textCol.className = "col-lg-12 mb-5";
+          } else {
+            // IF MEDIA EXISTS: Use standard two-column layout
+            mediaCol.style.display = "block";
+            textCol.className = "col-lg-7 mb-5";
+
+            // Inject Video if it exists
+            if (hasVideo) {
+              document.getElementById("proj-video-box").style.display = "block";
+              document.getElementById("proj-video").src = project.videoLink;
             }
-            if (project.images[1]) {
-              document.getElementById("proj-image-2").src = project.images[1];
-              document.getElementById("proj-image-2").style.display = "block";
+
+            // Inject Images if they exist
+            if (hasImages) {
+              if (project.images[0]) {
+                document.getElementById("proj-image-1").src = project.images[0];
+                document.getElementById("proj-image-1").style.display = "block";
+              }
+              if (project.images[1]) {
+                document.getElementById("proj-image-2").src = project.images[1];
+                document.getElementById("proj-image-2").style.display = "block";
+              }
             }
           }
         } else {
